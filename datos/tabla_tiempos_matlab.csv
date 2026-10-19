@@ -1,0 +1,5 @@
+Metodo,Repeticiones,Tiempo_promedio_ms
+Euler explicito,300,0.00624666666666667
+Euler implicito,300,0.0726233333333333
+RK4,300,0.01045
+NSFD,300,0.00527

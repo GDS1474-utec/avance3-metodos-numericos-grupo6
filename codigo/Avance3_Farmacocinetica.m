@@ -119,35 +119,58 @@ title('Malla gruesa h=1: verificar valores negativos');
 legend({'Euler explicito','RK4','Referencia','C=0'},'Location','best');
 exportgraphics(f,fullfile(carpetaFig,'fig3_positividad_matlab.png'),'Resolution',240);
 
-%% 5. Variación de parámetros
+%% 5. Sensibilidad de los cuatro métodos
+% Se cambia un parámetro a la vez. Para los errores se usa h=0.25,
+% y para comprobar la positividad se usa h=1.
 casos = [5 2 1;10 2 1;15 2 1;10 1.5 1;10 2.5 1;10 2 0.5;10 2 2];
 nombres = {'C0=5';'Base';'C0=15';'Vmax=1.5';'Vmax=2.5';'Km=0.5';'Km=2'};
 ts = (0:0.25:T)';
-sens = cell(0,8);
-f=figure('Color','w','Position',[100 100 1000 600]); hold on;
+tsGrueso = (0:1:T)';
+sens = cell(0,10);
 for j=1:size(casos,1)
     c0i = casos(j,1); vi = casos(j,2); ki = casos(j,3);
-    ce = referencia_analitica(ts,c0i,vi,ki);
-    aucE = (ki*(c0i-ce(end))+(c0i^2-ce(end)^2)/2)/vi;
-    [cexp,~] = simular(ts,c0i,vi,ki,'Euler explicito','Newton');
-    [cr,~] = simular(ts,c0i,vi,ki,'RK4','Newton');
-    [cn,~] = simular(ts,c0i,vi,ki,'NSFD','Newton');
-    sens(end+1,:) = {nombres{j},c0i,vi,ki,aucE, ...
-         max(abs(cexp-ce)),max(abs(cr-ce)),sum(cexp < -1e-12*c0i)}; %#ok<AGROW>
-    plot(ts,ce,'LineWidth',1.5);
+    cref = referencia_analitica(ts,c0i,vi,ki);
+    errores = zeros(1,numel(metodos)); negativos = zeros(1,numel(metodos));
+    for im=1:numel(metodos)
+        [c,~] = simular(ts,c0i,vi,ki,metodos{im},'Newton');
+        errores(im) = max(abs(c-cref));
+        [cg,~] = simular(tsGrueso,c0i,vi,ki,metodos{im},'Newton');
+        negativos(im) = sum(cg < -1e-12*c0i);
+    end
+    sens(end+1,:) = {nombres{j},c0i,vi,ki,errores(1),errores(2), ...
+        errores(3),errores(4),negativos(1),negativos(3)}; %#ok<AGROW>
+    assert(negativos(2)==0 && negativos(4)==0, ...
+        'Se detectaron estados negativos en Euler implicito o NSFD');
 end
-TS=cell2table(sens,'VariableNames',{'Caso','C0','Vmax','Km','AUC_analitica', ...
- 'Error_Euler','Error_RK4','Negativos_Euler'});
-writetable(TS,fullfile(carpetaDatos,'tabla_sensibilidad_matlab.csv'));
+TS = cell2table(sens,'VariableNames',{'Caso','C0','Vmax','Km', ...
+    'Error_Euler_Exp','Error_Euler_Imp','Error_RK4','Error_NSFD', ...
+    'Negativos_Euler_h1','Negativos_RK4_h1'});
+writetable(TS,fullfile(carpetaDatos,'tabla_sensibilidad_metodos_matlab.csv'));
 disp(TS);
-legend(nombres,'Location','northeast'); grid on;
-xlabel('Tiempo normalizado'); ylabel('Concentracion de referencia');
-title('Sensibilidad un parametro a la vez');
-exportgraphics(f,fullfile(carpetaFig,'fig4_sensibilidad_matlab.png'),'Resolution',240);
+
+%% 6. Comparación de tiempos repetidos
+% Se repite la misma simulación completa para evitar medir una sola corrida.
+% Los promedios se obtienen en la computadora que ejecute este archivo.
+repeticiones = 300;
+mediciones = cell(numel(metodos),3);
+for im=1:numel(metodos)
+    % Una ejecución previa reduce el efecto de la primera llamada.
+    simular(ts,C0,Vmax,Km,metodos{im},'Newton');
+    inicio = tic;
+    for ir=1:repeticiones
+        simular(ts,C0,Vmax,Km,metodos{im},'Newton');
+    end
+    tiempoMedioMs = 1000*toc(inicio)/repeticiones;
+    mediciones(im,:) = {metodos{im},repeticiones,tiempoMedioMs};
+end
+TT = cell2table(mediciones,'VariableNames', ...
+    {'Metodo','Repeticiones','Tiempo_promedio_ms'});
+writetable(TT,fullfile(carpetaDatos,'tabla_tiempos_matlab.csv'));
+disp(TT);
 
 fprintf('\nTablas guardadas en: %s\n', carpetaDatos);
 fprintf('Graficas guardadas en: %s\n', carpetaFig);
-fprintf('Los tiempos de la tabla corresponden a esta ejecucion.\n');
+fprintf('Los tiempos promedio corresponden a esta ejecucion.\n');
 
 %% Funciones locales
 function [C,iterTot] = simular(t,C0,Vmax,Km,metodo,solucionador)

@@ -3,8 +3,9 @@
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{amsmath,amssymb,booktabs,graphicx,url,microtype}
-\usepackage{url}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\Urlmuskip=0mu plus 1mu
 \begin{document}
 \begin{titlepage}
     \centering
@@ -29,7 +30,7 @@
     \vspace{0.5cm}
     {\large Patricia Reynoso Quispe \par}
     \vfill
-    {\large \textbf{Barranco, 18 de octubre de 2026 --- Avance 3} \par}
+    {\large \textbf{Barranco, 18 de octubre de 2026} \par}
 \end{titlepage}
 
 \begin{frontmatter}
@@ -49,14 +50,12 @@
             country={Perú}}
 
 \begin{abstract}
-Se comparan cuatro métodos numéricos para un modelo farmacocinético de un compartimento con eliminación no lineal de Michaelis--Menten: Euler explícito, Euler implícito, Runge--Kutta de cuarto orden (RK4) y diferencias finitas no estándar (NSFD). Se utilizaron parámetros normalizados y se compararon las soluciones con una referencia analítica expresada mediante la función $W$ de Lambert. Para pasos entre $1$ y $0.0625$, RK4 obtuvo los menores errores máximos; Euler explícito produjo valores negativos con $h=1$, mientras que Euler implícito y NSFD conservaron la positividad. El análisis muestra que preservar propiedades cualitativas no garantiza precisión: NSFD presentó errores superiores en el caso considerado. La tabla de errores exportada desde MATLAB Online coincidió con la verificación independiente en Python, con diferencias menores que $10^{-14}$ en las magnitudes comparadas. Se comprobó así la consistencia de los resultados para las cinco mallas utilizadas.
+Se comparan los métodos de Euler explícito, Euler implícito, Runge--Kutta de cuarto orden (RK4) y diferencias finitas no estándar (NSFD) en un modelo farmacocinético monocompartimental con eliminación de Michaelis--Menten. Se consideran condiciones iniciales y parámetros normalizados, cinco tamaños de paso y una referencia analítica basada en la función $W$ de Lambert. RK4 presenta el menor error máximo al refinar la malla, mientras que Euler explícito produce valores negativos con pasos gruesos. Una variación unifactorial de $C_0$, $V_{max}$ y $K_m$ permite comparar la respuesta de los cuatro esquemas y evidencia que la preservación de la positividad depende tanto del método como de los parámetros. Los indicadores de concentración y exposición se analizan junto con el costo de cálculo, estimado mediante 300 repeticiones de cada simulación, distinguiendo precisión cuantitativa y admisibilidad física.
 \end{abstract}
 
 
 \begin{keyword}
-farmacocinética \sep Michaelis--Menten \sep métodos numéricos \sep positividad \sep Runge--Kutta \sep NSFD
-
-
+farmacocinética \sep Michaelis--Menten \sep Euler implícito \sep Runge--Kutta \sep diferencias finitas no estándar
 \end{keyword}
 
 
@@ -73,7 +72,7 @@ Diversos estudios han abordado la modelación farmacocinética y el desarrollo d
 
 Estos antecedentes muestran que la representación numérica de modelos farmacocinéticos no lineales no depende únicamente de obtener una aproximación de la solución, sino también de conservar propiedades necesarias para que los resultados mantengan una interpretación física adecuada. En este ámbito también se han propuesto enfoques alternativos para representar la complejidad de estos sistemas; por ejemplo, \citet{yang2021} desarrollaron un modelo farmacocinético basado en ecuaciones diferenciales inciertas con el propósito de considerar la variabilidad presente en los parámetros farmacocinéticos. Sin embargo, en los modelos deterministas, la elección del esquema numérico continúa siendo relevante, debido a que la positividad de la concentración y la estabilidad de la solución pueden verse afectadas por el método empleado y por el tamaño de paso seleccionado \citep{egbelowo2018}. En este contexto, resulta pertinente comparar bajo condiciones homogéneas distintos esquemas numéricos aplicados a un mismo modelo farmacocinético monocompartimental con eliminación no lineal. En particular, la comparación de Euler explícito, Euler implícito, Runge–Kutta de cuarto orden y un esquema de diferencias finitas no estándar permitirá evaluar posteriormente su comportamiento considerando propiedades como la positividad, la estabilidad, el error numérico y el costo computacional. De esta manera, el estudio busca determinar las características y limitaciones de cada esquema para representar de manera consistente la evolución temporal de la concentración del fármaco.
 
-El presente trabajo tiene como objetivo general analizar y comparar el desempeño de diferentes métodos numéricos para aproximar la evolución temporal de la concentración de un fármaco en un modelo farmacocinético monocompartimental con eliminación no lineal de tipo Michaelis-Menten. Para alcanzar esta meta, se plantean los siguientes objetivos específicos: (I) formular el modelo farmacocinético monocompartimental con eliminación no lineal, estableciendo la ecuación diferencial, la condición inicial y los parámetros para una administración intravenosa en bolo; (II) implementar los métodos de Euler explícito, Euler implícito, Runge-Kutta de cuarto orden y un esquema de diferencias finitas no estándar (NSFD) para aproximar numéricamente la evolución de la concentración del fármaco a lo largo del tiempo; (III) comparar el desempeño de los diferentes métodos mediante el análisis del error, la estabilidad y la conservación de la positividad de la concentración para distintos tamaños de paso y condiciones de simulación; y (IV) evaluar las ventajas y limitaciones de los métodos considerados en términos de precisión, estabilidad, positividad y costo computacional, identificando las condiciones bajo las cuales cada esquema proporciona resultados numéricamente confiables. El documento presenta la metodología, los resultados obtenidos hasta este avance y una discusión preliminar sobre la precisión y la positividad de los métodos.
+El presente trabajo tiene como objetivo general analizar y comparar el desempeño de diferentes métodos numéricos para aproximar la evolución temporal de la concentración de un fármaco en un modelo farmacocinético monocompartimental con eliminación no lineal de tipo Michaelis-Menten. Para alcanzar esta meta, se plantean los siguientes objetivos específicos: (I) formular el modelo farmacocinético monocompartimental con eliminación no lineal, estableciendo la ecuación diferencial, la condición inicial y los parámetros para una administración intravenosa en bolo; (II) implementar los métodos de Euler explícito, Euler implícito, Runge-Kutta de cuarto orden y un esquema de diferencias finitas no estándar (NSFD) para aproximar numéricamente la evolución de la concentración del fármaco a lo largo del tiempo; (III) comparar el desempeño de los diferentes métodos mediante el análisis del error, la estabilidad y la conservación de la positividad de la concentración para distintos tamaños de paso y condiciones de simulación; y (IV) evaluar las ventajas y limitaciones de los métodos considerados en términos de precisión, estabilidad, positividad y costo computacional, identificando las condiciones bajo las cuales cada esquema proporciona resultados numéricamente confiables. El estudio incluye el análisis de sensibilidad ante cambios en los parámetros del modelo y de las diferencias de costo entre los algoritmos.
 
 
 \section{Metodología}
@@ -136,7 +135,7 @@ C_{k+1} = C_k + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)
 \end{equation}
 RK4 permitió establecer una comparación con un método clásico de mayor exactitud, destacando por su eficacia histórica para minimizar el error local de truncamiento \citep{butcher1996}.
 
-Finalmente, se implementó un esquema de Diferencias Finitas No Estándar (NSFD) propuesto por \citet{mickens2002}. Para el modelo se empleó la función denominador:
+Finalmente, se implementó un esquema de diferencias finitas no estándar (NSFD) siguiendo el enfoque de \citet{mickens2002}. Para el modelo se empleó la función denominador:
 \begin{equation}
 \phi(h) = \frac{K_m(e^{hV_{max}/K_m}-1)}{V_{max}}
 \end{equation}
@@ -150,11 +149,9 @@ C_{k+1} = \frac{C_k}{1 + \phi(h)\left(\frac{V_{max}}{K_m+C_k}\right)}
 \end{equation}
 La elección del método NSFD se justifica porque fue formulado para conservar propiedades cualitativas de los modelos continuos y reducir la aparición de inestabilidades \citep{egbelowo2018}.
 
-Para comparar los métodos, se realizaron simulaciones analizando el error numérico, la estabilidad y la positividad. Se calcularon la concentración máxima ($C_{max}$), el tiempo para alcanzarla ($t_{max}$) y el área bajo la curva (AUC) mediante la regla de los trapecios \citep{purves1992}. Adicionalmente, se ejecutó un análisis de sensibilidad variando $C_0$, $V_{max}$ y $K_m$. Como referencia del error se utilizó la solución analítica expresada con la función $W$ de Lambert. En el código MATLAB también se registran los tiempos de ejecución de cada método.
+Para comparar los métodos, se realizaron simulaciones analizando el error numérico, la estabilidad y la positividad. Se calcularon la concentración máxima ($C_{max}$), el tiempo para alcanzarla ($t_{max}$) y el área bajo la curva (AUC) mediante la regla de los trapecios \citep{purves1992}. Adicionalmente, se ejecutó un análisis de sensibilidad variando $C_0$, $V_{max}$ y $K_m$. Como referencia del error se utilizó la solución analítica expresada con la función $W$ de Lambert. El costo de cálculo se evaluó a partir del tiempo transcurrido para repetir cada simulación 300 veces con una malla equivalente ($h=0.25$), tras una ejecución inicial de preparación. El tiempo total se dividió entre el número de repeticiones para estimar la duración media por simulación. Esta medición permite comparar los métodos en un mismo entorno, aunque no caracteriza por sí sola el rendimiento en otras condiciones.
 
 
-\subsection{Diseño de experimentos y validación computacional}
-\label{sec:diseno}
 
 Para comparar los métodos se eligieron $C_0=10$, $V_{max}=2$, $K_m=1$ y $t\in[0,12]$, en unidades normalizadas. Estos parámetros corresponden a un ejercicio de simulación; no proceden de datos de pacientes. Se examinaron las mallas uniformes $h\in\{1,0.5,0.25,0.125,0.0625\}$, todas divisoras exactas del horizonte temporal. El mismo valor inicial, parámetros y dominio fueron utilizados para cada esquema. Se define el error global discreto
 \begin{equation}
@@ -166,26 +163,26 @@ La solución exacta para la administración intravenosa considerada es
  C(t)=K_m W_0\!\left(\frac{C_0}{K_m}\exp\!\left(\frac{C_0-V_{max}t}{K_m}\right)\right),
  \label{eq:lambert}
 \end{equation}
-donde $W_0$ es la rama real principal de Lambert, obtenida de la relación integrada $C(t)+K_m\ln[C(t)/C_0]=C_0-V_{max}t$ \citep{wagner1973}. En la verificación independiente se evaluó $W_0$ con \texttt{scipy.special.lambertw}. En el archivo MATLAB suministrado, la misma relación se evalúa con \texttt{fzero} sobre $y=\ln(C/C_0)$, lo cual evita requerir la Symbolic Math Toolbox. Para Euler implícito se contrastaron Newton, secante y la raíz positiva de la ecuación cuadrática equivalente, como control de consistencia.
+donde $W_0$ es la rama real principal de Lambert, obtenida de la relación integrada $C(t)+K_m\ln[C(t)/C_0]=C_0-V_{max}t$ \citep{wagner1973}. Para evaluar la solución de referencia también se resolvió numéricamente la relación integrada en la variable $y=\ln[C(t)/C_0]$, mediante búsqueda de raíces en un intervalo acotado. Para Euler implícito se contrastaron Newton, secante y la raíz positiva de la ecuación cuadrática equivalente, como control de consistencia.
 
-La exposición total se aproximó por trapecios compuestos, $\mathrm{AUC}_h=\mathrm{trapz}(t,C)$, y se comparó con la identidad analítica
+La exposición total se aproximó por trapecios compuestos, $\mathrm{AUC}_h= h\left[\frac{C_0+C_N}{2}+\sum_{k=1}^{N-1}C_k\right]$, y se comparó con la identidad analítica
 \begin{equation}
  \mathrm{AUC}_{[0,T]}=\frac{K_m(C_0-C(T))+[C_0^2-C(T)^2]/2}{V_{max}},
  \label{eq:auc}
 \end{equation}
 obtenida integrando $C\,dt$ mediante la ecuación diferencial. También se calcularon $C_{max}$, $t_{max}$ y el número de valores estrictamente menores que $-10^{-12}C_0$. La convergencia se evaluó mediante cocientes de error al reducir $h$ a la mitad; una estimación del orden es $p\approx\log_2[E_\infty(h)/E_\infty(h/2)]$. El análisis paramétrico modificó un parámetro a la vez: $C_0\in\{5,10,15\}$, $V_{max}\in\{1.5,2,2.5\}$ y $K_m\in\{0.5,1,2\}$, manteniendo los demás en la línea base, con $h=0.25$.
 
-El programa \texttt{Avance3\_Farmacocinetica.mlx} reúne los cuatro métodos, calcula los indicadores y guarda las tablas y gráficas. Se contrastó la tabla de errores generada en MATLAB Online con la obtenida mediante una implementación independiente en Python. En los veinte casos evaluados coincidieron los errores máximos, las AUC, la cantidad de valores negativos y las iteraciones de Euler implícito, dentro de la precisión numérica. Las funciones locales de los ejercicios de clase se mantienen tal como fueron proporcionadas.
+La comparación de las implementaciones se verificó por medio de los veinte registros de error y exposición obtenidos para los cinco tamaños de paso y los cuatro esquemas. En los indicadores comparables, las diferencias entre ambos cálculos fueron inferiores a $10^{-14}$; además, coincidieron los conteos de valores negativos y las iteraciones de la resolución implícita. Para el estudio de sensibilidad se compararon los cuatro esquemas con la referencia analítica, a $h=0.25$, y se revisaron las violaciones de positividad a $h=1$. En la sensibilidad, los siete escenarios se contrastaron con una verificación independiente: la diferencia máxima entre las métricas numéricas correspondientes fue inferior a $10^{-14}$ y coincidieron los conteos de valores negativos. El costo se resume mediante los tiempos medios medidos con el mismo procedimiento y $300$ repeticiones por método.
 
-\section{Resultados preliminares}
+
+\section{Resultados}
 \label{resultados}
-\subsection{Error global y comportamiento cualitativo}
 
-Para el escenario normalizado, la solución de referencia entrega $C(12)=8.3152\times10^{-6}$ y $\mathrm{AUC}_{[0,12]}=29.999996$ (se redondean los valores para su presentación). La Tabla~\ref{tab:errores} cuantifica el error global $E_\infty$ para los cuatro métodos. Al refinar la malla se reduce el error en todas las aproximaciones; para cada $h$ de la tabla, RK4 es el esquema más preciso de los considerados.
+La solución analítica del caso base proporciona $C(12)=8.3152\times10^{-6}$ y $\mathrm{AUC}_{[0,12]}=29.999996$. La Tabla~\ref{tab:errores} muestra el error máximo $E_\infty$ al reducir el tamaño de paso. En las cinco mallas RK4 fue el más preciso y, en las dos mallas más finas, el cociente de errores fue compatible con un orden cercano a cuatro. Para el refinamiento de $h=0.125$ a $h=0.0625$, los órdenes estimados fueron $1.014$, $0.987$, $4.102$ y $0.982$ para Euler explícito, Euler implícito, RK4 y NSFD, respectivamente.
 
 \begin{table*}[t]
 \centering
-\caption{Errores máximos absolutos $E_\infty$ para cada tamaño de paso. Resultados exportados desde MATLAB Online y contrastados con una implementación independiente en Python.}
+\caption{Error máximo absoluto $E_\infty$ frente al refinamiento de paso.}
 \label{tab:errores}
 \begin{tabular}{@{}ccccc@{}}
 \toprule
@@ -200,98 +197,76 @@ $0.0625$ & $2.110\times10^{-2}$ & $2.072\times10^{-2}$ & $1.489\times10^{-7}$ & 
 \end{tabular}
 \end{table*}
 
+La Figura~\ref{fig:curvas} ilustra las trayectorias para $h=0.25$ y permite observar la evolución temporal y las diferencias respecto a la referencia. En esta malla los cuatro esquemas produjeron concentraciones no negativas. En cambio, con $h=1$, Euler explícito produjo tres valores menores que la tolerancia de positividad y alcanzó un mínimo de $-0.163858$ (Figura~\ref{fig:positividad}). El resultado evidencia que un tamaño de paso aceptable para representar la tendencia general no necesariamente conserva las propiedades físicas de la solución.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figuras/fig1_trayectorias.png}
-\caption{Evolución temporal con $h=0.25$. Se comparan las cuatro aproximaciones con la solución analítica.}
+\caption{Evolución temporal de las concentraciones para $h=0.25$ y comparación con la solución de referencia.}
 \label{fig:curvas}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figuras/fig2_convergencia.png}
-\caption{Error máximo frente al tamaño de paso en escala logarítmica. Se aprecia el refinamiento cercano a cuarto orden para RK4 en las mallas pequeñas.}
-\label{fig:errores}
-\end{figure}
-
-Las pendientes experimentales aproximadas para el par $h=0.125\rightarrow0.0625$ fueron $1.014$ (Euler explícito), $0.987$ (Euler implícito), $4.102$ (RK4) y $0.982$ (NSFD). Estos valores son consistentes, dentro del experimento, con órdenes globales cercanos a uno para los esquemas de Euler y el NSFD implementado, y cercano a cuatro para RK4. Con $h=1$, Euler explícito produjo \textbf{tres concentraciones negativas}, con mínimo $-0.163858$; las otras tres aproximaciones no tuvieron valores negativos a ese paso. En las mallas menores consideradas, no se observaron violaciones de positividad de ninguno de los cuatro métodos. No se recortaron artificialmente las concentraciones negativas.
-
-\begin{figure}[t]
-\centering
 \includegraphics[width=\columnwidth]{figuras/fig3_positividad.png}
-\caption{Detalle de la malla gruesa $h=1$: Euler explícito atraviesa el nivel físico $C=0$ en el tramo final, a diferencia de RK4 en este escenario.}
+\caption{Concentraciones en una malla gruesa ($h=1$). La línea horizontal corresponde al límite $C=0$.}
 \label{fig:positividad}
 \end{figure}
 
-\subsection{Indicadores farmacocinéticos y validación interna}
-
-La Tabla~\ref{tab:auc} presenta las estimaciones mediante trapecios para $h=0.25$. Para los cuatro métodos a ese paso, $C_{max}=10$ y $t_{max}=0$, porque las trayectorias parten de la concentración máxima y decrecen en los nodos observados. Estos valores no permiten, por sí solos, discriminar entre métodos; en cambio, el error de AUC sí evidencia diferencias de precisión.
+La Tabla~\ref{tab:auc} resume la exposición acumulada estimada para $h=0.25$, mediante integración compuesta por trapecios. En todas las trayectorias discretas de esta malla, la concentración máxima se obtuvo al inicio: $C_{max}=10$ y $t_{max}=0$. La AUC discrimina mejor la precisión de cada esquema. Los tiempos presentados en la misma tabla son promedios de $300$ ejecuciones completas por método, medidos en un mismo entorno para la malla $h=0.25$. En esta prueba, NSFD registró el menor tiempo medio, seguido de Euler explícito y RK4; Euler implícito necesitó más tiempo debido a la solución no lineal en cada paso.
 
 \begin{table}[t]
 \centering
-\caption{AUC por trapecios para $h=0.25$; AUC exacta $=29.999996$.}
+\caption{Exposición numérica y costo para $h=0.25$. La AUC de referencia es $29.999996$. Cada tiempo es el promedio de 300 ejecuciones en el mismo entorno.}
 \label{tab:auc}
-\begin{tabular}{@{}lrr@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-Método & AUC aprox. & Error absoluto \\
+Método & AUC & Error AUC & Tiempo (ms) \\
 \midrule
-Euler explícito & 29.71344 & 0.28656 \\
-Euler implícito & 30.31239 & 0.31239 \\
-RK4 & 30.00957 & 0.00957 \\
-NSFD & 25.23468 & 4.76531 \\
+Euler explícito & 29.71344 & 0.28656 & 0.00625 \\
+Euler implícito & 30.31239 & 0.31239 & 0.07262 \\
+RK4 & 30.00957 & 0.00957 & 0.01045 \\
+NSFD & 25.23468 & 4.76531 & 0.00527 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-El solucionador de Euler implícito se validó comparando tres formas de obtener la raíz positiva por paso: Newton, secante y la fórmula algebraica estable. Para $h=0.25$, la máxima diferencia entre Newton y secante fue $8.88\times10^{-16}$ y la máxima diferencia entre Newton y la raíz cuadrática fue también $8.88\times10^{-16}$. Newton acumuló 168 iteraciones y secante 210 a lo largo de 48 pasos en la implementación de referencia. La coincidencia entre los valores obtenidos indica que ambos solucionadores están resolviendo la misma ecuación algebraica.
+Se contrastó además la resolución iterativa de Euler implícito con dos métodos de búsqueda de raíces y la fórmula algebraica positiva equivalente. Para $h=0.25$, la máxima discrepancia entre los resultados fue $8.88\times10^{-16}$. Se acumularon 168 iteraciones en el primer procedimiento y 210 en el segundo, a lo largo de 48 pasos. Estas concordancias respaldan la consistencia algebraica del esquema para la configuración ensayada.
 
-\subsection{Sensibilidad paramétrica}
+Para analizar la sensibilidad se alteró un solo parámetro respecto al caso base, manteniendo $h=0.25$. La Tabla~\ref{tab:sensibilidad} reúne los errores de los \emph{cuatro métodos} y, en una malla gruesa, el número de concentraciones negativas de los esquemas explícitos. El error de NSFD fue especialmente elevado cuando $K_m$ disminuyó a $0.5$, mientras que RK4 conservó una precisión alta para la malla fina. La positividad no fue uniforme entre escenarios: con $K_m=0.5$ y $h=1$, RK4 produjo seis valores negativos; Euler explícito presentó violaciones en seis de los siete escenarios. Euler implícito y NSFD no presentaron valores negativos en estos casos.
 
-La Figura~\ref{fig:sensibilidad} muestra las trayectorias de referencia al variar una magnitud a la vez. La Tabla~\ref{tab:sensibilidad} sintetiza cómo cambia la exposición acumulada, conservando el mismo horizonte $T=12$. Cuando $C_0$ aumenta, la AUC crece; cuando $V_{max}$ aumenta, la eliminación se acelera y la AUC disminuye. Aumentar $K_m$, con $C_0$ y $V_{max}$ constantes, produce concentraciones relativamente mayores durante la eliminación y eleva la AUC. Estos resultados están limitados a los parámetros ensayados.
-
-\begin{figure}[t]
+\begin{table*}[t]
 \centering
-\includegraphics[width=\columnwidth]{figuras/fig4_sensibilidad.png}
-\caption{Estudio unifactorial: curvas analíticas al variar $C_0$, $V_{max}$ o $K_m$ respecto de la configuración base.}
-\label{fig:sensibilidad}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\caption{AUC de referencia según el parámetro modificado, $T=12$.}
+\caption{Sensibilidad unifactorial: error máximo $E_\infty$ para $h=0.25$, y número de valores negativos en la malla $h=1$. Los resultados de los cuatro métodos fueron contrastados con una verificación independiente.}
 \label{tab:sensibilidad}
-\begin{tabular}{@{}lr@{}}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-Caso & AUC analítica \\
+Escenario & Euler expl. & Euler impl. & RK4 & NSFD & Neg. E. expl. & Neg. RK4 \\
 \midrule
-$C_0=5$ & 8.750 \\
-Base $(10,2,1)$ & 30.000 \\
-$C_0=15$ & 63.749 \\
-$V_{max}=1.5$ & 39.998 \\
-$V_{max}=2.5$ & 24.000 \\
-$K_m=0.5$ & 27.500 \\
-$K_m=2$ & 34.991 \\
+$C_0=5$        & $8.029\!\times\!10^{-2}$ & $7.362\!\times\!10^{-2}$ & $4.713\!\times\!10^{-5}$ & 0.368 & 5 & 0 \\
+Base $10,2,1$  & $8.698\!\times\!10^{-2}$ & $8.080\!\times\!10^{-2}$ & $4.706\!\times\!10^{-5}$ & 1.078 & 3 & 0 \\
+$C_0=15$       & $8.938\!\times\!10^{-2}$ & $8.317\!\times\!10^{-2}$ & $4.720\!\times\!10^{-5}$ & 1.911 & 2 & 0 \\
+$V_{max}=1.5$  & $6.440\!\times\!10^{-2}$ & $6.106\!\times\!10^{-2}$ & $1.389\!\times\!10^{-5}$ & 0.821 & 2 & 0 \\
+$V_{max}=2.5$  & $1.099\!\times\!10^{-1}$ & $1.002\!\times\!10^{-1}$ & $1.217\!\times\!10^{-4}$ & 1.326 & 4 & 0 \\
+$K_m=0.5$      & $9.435\!\times\!10^{-2}$ & $8.262\!\times\!10^{-2}$ & $4.806\!\times\!10^{-4}$ & 2.631 & 2 & 6 \\
+$K_m=2$        & $7.837\!\times\!10^{-2}$ & $7.507\!\times\!10^{-2}$ & $5.101\!\times\!10^{-6}$ & 0.382 & 0 & 0 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\section{Discusión preliminar}
+\section{Discusión}
 \label{discusion}
 
-Los resultados permiten conectar los hallazgos con los objetivos específicos del estudio. Primero, el modelo monocompartimental presenta una referencia analítica útil para determinar el error global sin depender de un método numérico arbitrario como estándar. Segundo, los cuatro esquemas fueron codificados por separado y el solucionador no lineal interno de Euler implícito fue contrastado con raíces obtenidas mediante otros procedimientos. Tercero, el experimento de refinamiento evidencia diferencias importantes de precisión y preservación de la positividad: RK4 logró errores inferiores en el intervalo estudiado, mientras que Euler explícito produjo concentraciones negativas al usar un paso grueso.
+El contraste con la solución del modelo integrado permite evaluar el error global sin elegir arbitrariamente otro integrador como patrón de comparación. Dentro del intervalo y los pasos examinados, RK4 presentó una convergencia más rápida, acorde con el orden del método descrito por \citet{butcher1996}. Sin embargo, su resultado no debe extrapolarse a todos los parámetros ni a cualquier tamaño de paso, pues el caso $K_m=0.5$ con $h=1$ reveló violaciones de positividad. Esto confirma que el control del error y la conservación de propiedades físicas deben analizarse por separado.
 
-La positividad es una propiedad necesaria para que la concentración calculada sea físicamente admisible, pero no basta para garantizar fidelidad cuantitativa. El NSFD utilizado preservó concentraciones no negativas en todas las mallas probadas; sin embargo, su error global resultó sensiblemente mayor que el de los métodos clásicos para el caso elegido. En particular, el denominador no estándar adoptado debe evaluarse como un diseño específico y no como un aval general para cualquier variante NSFD. Tampoco puede afirmarse que RK4 sea incondicionalmente positivo: su comportamiento favorable en estas mallas no constituye una demostración universal de esa propiedad.
+Euler implícito y NSFD conservaron concentraciones no negativas en los escenarios considerados, pero tal comportamiento no implicó la misma precisión. El error de NSFD fue mayor en varias configuraciones, pese a su preservación cualitativa. Esta diferencia concuerda con la necesidad de estudiar las propiedades de cada discretización no estándar particular, en lugar de considerar a todos los esquemas NSFD equivalentes (\citealp{mickens2002,egbelowo2018}). Del mismo modo, el resultado de Euler explícito para pasos gruesos muestra la importancia práctica de imponer criterios de admisibilidad en modelos de eliminación saturable.
 
-En términos de costo teórico por paso, Euler explícito y NSFD utilizan evaluaciones directas, mientras que RK4 requiere cuatro evaluaciones de la función $f$. Euler implícito añade iteraciones de un solucionador no lineal, cuyo costo depende de la tolerancia y del estado. El archivo MATLAB mide los tiempos con \texttt{tic/toc}. Para comparar el costo computacional conviene ejecutar todos los métodos en la misma computadora y repetir las mediciones, porque los tiempos también dependen del equipo. Asimismo, el cálculo de AUC por trapecios introduce un error de cuadratura de orden dos incluso cuando la trayectoria se calcula con un esquema de mayor orden, por lo que no debe atribuirse toda la discrepancia en AUC exclusivamente al integrador de la EDO.
+Los indicadores de exposición permiten una comparación adicional, pero deben interpretarse teniendo en cuenta que el cálculo por la regla compuesta del trapecio agrega un error de cuadratura que no coincide necesariamente con el orden del integrador temporal. \citet{purves1992} analizó precisamente la influencia del procedimiento de integración en los indicadores farmacocinéticos. La variación de los parámetros, además, modifica el comportamiento de los errores sin que esto convierta los valores normalizados utilizados aquí en predicciones clínicas (\citealp{tang2007,wagner1973}).
 
-Los valores de $C_{max}$, $t_{max}$ y AUC corresponden al modelo con parámetros normalizados, por lo que no deben interpretarse como resultados clínicos. La comparación de los veinte registros exportados desde MATLAB con los de referencia confirmó la coincidencia numérica: la diferencia absoluta máxima fue menor que $10^{-14}$ en las columnas comparadas. Los tiempos de ejecución se conservaron como dato de MATLAB, pero no se contrastaron porque dependen del entorno de cómputo. Si se requiere, puede ampliarse el estudio con otros valores de los parámetros. Esta discusión se ampliará en la entrega final.
+Respecto al costo computacional, los esquemas directos realizan menos evaluaciones por paso; RK4 utiliza cuatro evaluaciones de la función de evolución y Euler implícito requiere resolver una ecuación no lineal en cada avance temporal. Con $h=0.25$, las medias registradas fueron $0.00527$ ms para NSFD, $0.00625$ ms para Euler explícito, $0.01045$ ms para RK4 y $0.07262$ ms para Euler implícito. En estas condiciones, NSFD fue el menos costoso en tiempo, aunque tuvo errores superiores a los de los otros métodos. Euler implícito tardó aproximadamente 13.8 veces lo que NSFD. Estas diferencias reflejan el costo observado en esta ejecución y no necesariamente se mantienen en otras máquinas o con otros tamaños de paso.
 
-\section*{Anexo: reproducibilidad y código}
-Los archivos \texttt{Avance3\_Farmacocinetica.mlx} y \texttt{Avance3\_Farmacocinetica.m} contienen la implementación; las tablas y figuras se incluyen en las carpetas correspondientes. Las plantillas empleadas en clase se adjuntan sin modificaciones.
-\noindent\textbf{Repositorio del grupo:}
-\href{https://github.com/GDS1474-utec/avance3-metodos-numericos-grupo6}{Abrir repositorio en GitHub}.
-
-
+\setlength{\bibsep}{0pt}
 \begin{thebibliography}{99}
 \bibitem[Butcher(1996)]{butcher1996}
 Butcher, J. C. (1996). A history of Runge--Kutta methods. \emph{Applied Numerical Mathematics, 20}(3), 247--260. \url{https://doi.org/10.1016/0168-9274(95)00108-5}
@@ -306,10 +281,19 @@ Purves, R. D. (1992). Optimum numerical integration methods for estimation of ar
 \bibitem[Tang and Xiao(2007)]{tang2007}
 Tang, S., \& Xiao, Y. (2007). One-compartment model with Michaelis--Menten elimination kinetics and therapeutic window: An analytical approach. \emph{Journal of Pharmacokinetics and Pharmacodynamics, 34}, 807--827. \url{https://doi.org/10.1007/s10928-007-9070-4}
 \bibitem[Wagner(1973)]{wagner1973}
-Wagner, J. G. (1973). Properties of the Michaelis--Menten equation and its integrated form which are useful in pharmacokinetics. \emph{Journal of Pharmacokinetics and Biopharmaceutics, 1}(2), 103--121. \url{https://doi.org/10.1007/BF01059625}
+Wagner, J. G. (1973). Properties of the Michaelis--Menten equation and its integrated form which are useful in pharmacokinetics. \emph{Journal of Pharmacokinetics and Biopharmaceutics, 1}(2), 103--121.\enspace\url{https://doi.org/10.1007/BF01059625}
 \bibitem[Yang and Liu(2021)]{yang2021}
 Yang, H., \& Liu, Y. (2021). Uncertain pharmacokinetic model based on uncertain differential equation. \emph{Applied Mathematics and Computation, 409}, 126118. \url{https://doi.org/10.1016/j.amc.2021.126118}
 \end{thebibliography}
+
+\clearpage
+\appendix
+\section*{Anexo: reproducibilidad y código}
+Los métodos están implementados en los archivos \texttt{codigo/Avance3\_Farmacocinetica.mlx} y \texttt{codigo/Avance3\_Farmacocinetica.m}, ejecutables en MATLAB. Se conservan las plantillas originales de clase, junto con las tablas y figuras del estudio. Los resultados contrastados de sensibilidad y tiempos medios se encuentran, respectivamente, en \texttt{datos/tabla\_sensibilidad\_metodos\_matlab.csv} y \texttt{datos/tabla\_tiempos\_matlab.csv}. Cada tiempo corresponde a una malla con $h=0.25$ y al promedio de $300$ ejecuciones. En el mismo directorio se conserva la tabla de errores del estudio de convergencia.
+
+\noindent\textbf{Repositorio del grupo:}\\
+\url{https://github.com/GDS1474-utec/avance3-metodos-numericos-grupo6}
+
 
 
 \end{document}
