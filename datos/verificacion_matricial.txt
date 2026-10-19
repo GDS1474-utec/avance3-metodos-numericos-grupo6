@@ -1,0 +1,11 @@
+COMPROBACIÓN DE RESULTADOS: MATLAB ONLINE Y CÁLCULO DE REFERENCIA
+
+Se compararon 20 registros (4 métodos por 5 pasos).
+Error_inf: diferencia máxima absoluta = 9.992e-16
+Violaciones_positividad: diferencia máxima absoluta = 0.000e+00
+Concentracion_minima: diferencia máxima absoluta = 9.529e-22
+AUC_trapecios: diferencia máxima absoluta = 0.000e+00
+Error_AUC: diferencia máxima absoluta = 9.992e-15
+Iteraciones_Nonlineales: diferencia máxima absoluta = 0.000e+00
+
+No se compararon los tiempos de ejecución, porque corresponden a entornos distintos.
