@@ -16,4 +16,3 @@ coincidieron exactamente. Los tiempos de ejecución solo proceden de MATLAB.
 
 Las figuras incluidas en el PDF se generaron en la verificación de referencia;
 el código de MATLAB genera las figuras correspondientes al ejecutarlo.
-Las plantillas de clase se adjuntan en plantillas_originales sin cambios.
