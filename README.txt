@@ -1,7 +1,5 @@
 AVANCE 3 - MÉTODOS NUMÉRICOS - GRUPO 6
 
-El artículo está en main.pdf y se puede editar desde main.tex.
-
 Ejecución en MATLAB Online:
 1. Abrir codigo/Avance3_Farmacocinetica.mlx en MATLAB.
 2. Seleccionar la carpeta del proyecto o la carpeta codigo como carpeta actual.
